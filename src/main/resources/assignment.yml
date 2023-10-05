@@ -1,0 +1,95 @@
+openapi: "3.0.0"
+
+info:
+  title: Clover Take Home Assignment
+  version: '1.0'
+  description: The **Dummy Bookshop API** is a _fictitious_ API aiming to demonstrate the [OpenAPI Specification](https://github.com/OAI/OpenAPI-Specification)'s features.
+  termsOfService: https://www.dummy-book.shop/tos
+  contact:
+    name: Bookshop Support team
+    url: https://www.dummy-book.shop/support
+    email: support@dummy-book.shop
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+paths:
+  /specific:
+    post:
+      summary: write logs sent by the client
+      requestBody: 
+        description: TODO
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LogRequest"
+      operationId: specific
+      responses: 
+        "200": 
+           description: logged received and parsed successfully
+  
+      
+  /generic:
+    post:
+      summary: write logs sent by the client
+      requestBody: 
+        description: TODO
+        required: true
+        content: 
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Array"
+      operationId: generic
+      responses: 
+        "200": 
+           description: logged received and parsed successfully
+      
+components:
+  schemas:
+    LogRequest:
+      type: object
+      required:
+        - packageName
+        - logs
+      properties:
+        packageName:
+          type: string
+        logs:
+          type: array
+          items: 
+            $ref: "#/components/schemas/LogInfo"
+        tag:
+          type: string
+    LogInfo:
+      type: object
+      properties:
+        versionNumber:
+          type: integer
+          format: int32
+        className:
+          type: string
+        methodName:
+          type: string
+        eventTime:
+          type: integer
+          format: int64
+        serialNumber:
+          type: string
+        requestUuid:
+          type: string
+    Array:
+      type: array
+      items: {}
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string
