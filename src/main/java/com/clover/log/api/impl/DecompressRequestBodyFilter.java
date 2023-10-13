@@ -67,7 +67,11 @@ public class DecompressRequestBodyFilter extends OncePerRequestFilter{
 
 		@Override
 		public boolean isFinished() {
-			return false;
+			try {
+				return delegate.available()==0;
+			} catch (IOException e) {
+				return true;
+			}
 		}
 
 		@Override
