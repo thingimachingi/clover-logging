@@ -1,6 +1,7 @@
 package com.clover.log.api.impl;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,12 @@ public class GenericApiDelegateImpl implements GenericApiDelegate {
 	@Override
 	public ResponseEntity<Void> generic(List<Object> requestBody) {
 		// TODO Auto-generated method stub
-		requestBody.forEach(o->logger.info(o.toString()));
+		requestBody.forEach(
+			o-> {
+				logger.info("Type of o is {}",o.getClass());
+				logger.info(o.toString());
+			}
+		);
 		return new ResponseEntity<Void>(HttpStatus.OK);
 	}
 

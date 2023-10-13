@@ -16,7 +16,7 @@ import java.util.Optional;
  * A delegate to be called by the {@link GenericApiController}}.
  * Implement this interface with a {@link org.springframework.stereotype.Service} annotated class.
  */
-@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-10-05T13:37:41.275571200-07:00[America/Los_Angeles]")
+@javax.annotation.Generated(value = "org.openapitools.codegen.languages.SpringCodegen", date = "2023-10-12T20:15:44.473510300-07:00[America/Los_Angeles]")
 public interface GenericApiDelegate {
 
     default Optional<NativeWebRequest> getRequest() {

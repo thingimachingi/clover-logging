@@ -51,13 +51,12 @@
 			<artifactId>springdoc-openapi-ui</artifactId>
 			<version>1.7.0</version>
 		</dependency>
-		<!-- 
+
 		<dependency>
-		    <groupId>io.swagger.core.v3</groupId>
-		    <artifactId>swagger-annotations</artifactId>
+		    <groupId>com.okta.spring</groupId>
+		    <artifactId>okta-spring-boot-starter</artifactId>
 		    <version>2.1.7</version>
-		</dependency>
-		-->
+		</dependency>		
 	</dependencies>
 
 	<build>

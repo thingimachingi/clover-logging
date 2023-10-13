@@ -1,16 +1,6 @@
 package com.clover.log.api.impl;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.zip.GZIPInputStream;
 
 import javax.servlet.FilterChain;
@@ -24,28 +14,29 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
+
 public class DecompressRequestBodyFilter extends OncePerRequestFilter{
 	Logger logger = LoggerFactory.getLogger(getClass());
+	
 	
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		
-		logger.info("DecompressRequestBodyFilter called");
+		logger.info("DecompressRequestBodyFilter2 called. mappingJackson2HttpMessageConverter = ");
         boolean isGzipped = request.getHeader(HttpHeaders.CONTENT_ENCODING) != null
                 && request.getHeader(HttpHeaders.CONTENT_ENCODING).contains("gzip");
         
         HttpServletRequestWrapper requestWrapper = null;
         if (isGzipped) {
-        	logger.info("DecompressRequestBodyFilter: gzip content encoding found");
+        	logger.info("DecompressRequestBodyFilter2: gzip content encoding found");
         	requestWrapper = new DecompressedRequestWrapper(request);
         } else {
         	requestWrapper = new HttpServletRequestWrapper(request);
         }
+        
         super.doFilter(requestWrapper, response, filterChain);
 
 		
@@ -60,32 +51,18 @@ public class DecompressRequestBodyFilter extends OncePerRequestFilter{
 
 		@Override
 		public ServletInputStream getInputStream() throws IOException {
-			
-			try (GZIPInputStream gis = new GZIPInputStream(super.getInputStream()) ){
-	            ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-	            byte[] buffer = new byte[1024];
-	            int len;
-	            try {
-	            while((len = gis.read(buffer)) != -1) {
-	                bytesOut.write(buffer,0,len);
-	            }
-	            } catch (EOFException err) {
-	            	logger.error("EOFEx", err);
-	            }
-	            
-	            
-	            return new BodyInputStream(bytesOut.toByteArray());
-			}
+            return new BodyInputStream(new GZIPInputStream(super.getInputStream()));
 		}
+		
 		
 	}
 	
 	private static class BodyInputStream extends ServletInputStream {
 
-		private final InputStream delegate;
+		private final GZIPInputStream delegate;
 
-		public BodyInputStream(byte[] body) {
-			this.delegate = new ByteArrayInputStream(body);
+		public BodyInputStream(GZIPInputStream delegate) {
+			this.delegate = delegate;
 		}
 
 		@Override

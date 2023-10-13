@@ -1,5 +1,6 @@
 package com.clover.test;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
@@ -10,9 +11,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
 import org.assertj.core.util.Files;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.client.AuthorizedClientServiceOAuth2AuthorizedClientManager;
+import org.springframework.security.oauth2.client.OAuth2AuthorizeRequest;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.util.MultiValueMap;
 
 import com.clover.log.model.LogInfo;
@@ -34,7 +41,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-class DemoApplicationTests {
+class DemoApplicationSecureAccessTests {
 	
 	private static final String GZIP = "gzip";
 
@@ -48,15 +55,32 @@ class DemoApplicationTests {
 	
 	@Value(value="${local.server.port}")
 	private int port;
+	@Autowired
+	private AuthorizedClientServiceOAuth2AuthorizedClientManager authorizedClientServiceAndManager;
+
+	private OAuth2AccessToken accessToken;
 	
 	@Test
 	void contextLoads() {
+		assertNotNull(authorizedClientServiceAndManager);
+	}
+	
+	
+	@BeforeEach
+	void beforeEachTest() {
+		OAuth2AuthorizeRequest authorizeRequest = OAuth2AuthorizeRequest.withClientRegistrationId("okta")
+				.principal("Mohan Krishnamurthy")
+				.build();
+		
+		OAuth2AuthorizedClient authorizedClient = this.authorizedClientServiceAndManager.authorize(authorizeRequest);
+		assertNotNull(authorizedClient);
+		accessToken = Objects.requireNonNull(authorizedClient).getAccessToken();
+		assertNotNull(accessToken);
 		
 	}
 	
 	@Test
 	void testSpecificApi() throws JsonProcessingException {
-		
 		LogRequest logRequest = new LogRequest();
 		logRequest.setPackageName("pkgName1");
 		List<LogInfo> logs = new ArrayList<>();
@@ -69,12 +93,13 @@ class DemoApplicationTests {
 		String url = "http://localhost:"+port+"/specific";
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken.getTokenValue());
 		//String jsonRequest = "{packageName:\"pkgName1\", logs:[{versionNumber:10,className:\"clzA\",methodName:\"methodA\",eventTime:12312312312,serialNumber:\"ser123\",requestUuid:\"req123\"}]}"; 
 		HttpEntity<String> request = new HttpEntity<String>(logRequestJson, headers );
 		ResponseEntity<?> response = this.testRestTemplate.postForEntity(url, request,ResponseEntity.class);
 		
 		
-		assertTrue(response.getStatusCode()==HttpStatus.UNAUTHORIZED);
+		assertTrue(response.getStatusCode()==HttpStatus.OK);
 		
 	}
 	@Test
@@ -98,6 +123,7 @@ class DemoApplicationTests {
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		headers.add(HttpHeaders.CONTENT_ENCODING, GZIP);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken.getTokenValue());
 		byte[] byteArray = bytesOut.toByteArray();
 		
 		File tmpFile = Files.newTemporaryFile();
@@ -115,7 +141,7 @@ class DemoApplicationTests {
 		ResponseEntity<?> response = this.testRestTemplate.postForEntity(url, request,ResponseEntity.class);
 		
 		
-		assertTrue(response.getStatusCode()==HttpStatus.UNAUTHORIZED);
+		assertTrue(response.getStatusCode()==HttpStatus.OK);
 		
 	}
 	@Test
@@ -143,11 +169,12 @@ class DemoApplicationTests {
 		String url = "http://localhost:"+port+"/generic";
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken.getTokenValue());
 		HttpEntity<String> request = new HttpEntity<>(logRequestJson, headers );
 		ResponseEntity<?> response = this.testRestTemplate.postForEntity(url, request,ResponseEntity.class);
 		
 		
-		assertTrue(response.getStatusCode()==HttpStatus.UNAUTHORIZED);
+		assertTrue(response.getStatusCode()==HttpStatus.OK);
 		
 	}
 
@@ -180,11 +207,13 @@ class DemoApplicationTests {
 		MultiValueMap<String, String> headers = new HttpHeaders();
 		headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 		headers.add(HttpHeaders.CONTENT_ENCODING, GZIP);
+		headers.add(HttpHeaders.AUTHORIZATION, "Bearer "+accessToken.getTokenValue());
 		HttpEntity<byte[]> request = new HttpEntity<byte[]>(bytesOut.toByteArray(), headers );
 		ResponseEntity<?> response = this.testRestTemplate.postForEntity(url, request,ResponseEntity.class);
 		
 		
-		assertTrue(response.getStatusCode()==HttpStatus.UNAUTHORIZED);
+		assertTrue(response.getStatusCode()==HttpStatus.OK);
+		
 		
 	}
 	
