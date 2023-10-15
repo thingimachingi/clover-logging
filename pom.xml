@@ -53,10 +53,16 @@
 		</dependency>
 
 		<dependency>
-		    <groupId>com.okta.spring</groupId>
-		    <artifactId>okta-spring-boot-starter</artifactId>
-		    <version>2.1.7</version>
-		</dependency>		
+			<groupId>com.okta.spring</groupId>
+			<artifactId>okta-spring-boot-starter</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+				
 	</dependencies>
 
 	<build>
@@ -74,12 +80,14 @@
 						<goals>
 							<goal>generate</goal>
 						</goals>
+						
 						<configuration>
+							<skipIfSpecIsUnchanged>true</skipIfSpecIsUnchanged>
 							<inputSpec>
 								${project.basedir}/src/main/resources/assignment.yml
 							</inputSpec>
 							<addCompileSourceRoot>true</addCompileSourceRoot>
-							
+
 							<generatorName>spring</generatorName>
 							<apiPackage>com.clover.log.api</apiPackage>
 							<modelPackage>com.clover.log.model</modelPackage>
