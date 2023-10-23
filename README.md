@@ -1,4 +1,5 @@
 # TODO
+1. Deploy on EKS Cluster
 1. Add documentation support
 1. Add MDC support
 1. implement authentication
